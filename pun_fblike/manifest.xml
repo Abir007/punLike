@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE extension SYSTEM "ext-1.0.dtd">
+
+<extension engine="1.0">
+	<id>pun_fblike</id>
+	<title>Pun Facebook Like Button</title>
+	<version>1.0.0</version>
+	<description>This Extension generates a like button, each time user post a topic or reply.</description>
+	<author>Psychecroatan (Abir)</author>
+
+	<minversion>1.4RC1</minversion>
+	<maxtestedon>1.4</maxtestedon>
+    
+	<note type="install">If you find it worthy please give a feedback at psychecroatan@gmail.com</note>
+
+	 <install>
+        <![CDATA[
+//Insert config values
+$new_config = array(
+	'o_facebook_like'		=> '',
+	'o_facebook_like_type'	=> 'enable'
+);
+
+foreach($new_config as $key => $value)
+{
+	if (!isset($forum_config[$key]))
+	{
+		$query = array(
+			'INSERT'	=> 'conf_name, conf_value',
+			'INTO'		=> 'config',
+			'VALUES'	=> '\''.$key.'\', \''.$value.'\''
+		);
+		$forum_db->query_build($query) or error(__FILE__, __LINE__);
+	}
+}
+        ]]>
+    </install>
+    
+    <uninstall>
+        <![CDATA[
+//We dont need this, do we
+$query = array(
+	'DELETE'	=> 'config',
+	'WHERE'		=> 'conf_name in (\'o_facebook_like\', \'o_facebook_like_type\')',
+);
+$forum_db->query_build($query) or error(__FILE__, __LINE__);
+        ]]>
+    </uninstall>
+   
+    <hooks>
+	 <hook id="vt_row_pre_post_actions_merge">
+		<![CDATA[
+		If (!$forum_config['o_facebook_like'] or $forum_config['o_facebook_like_type'] == 'disable')
+		{
+		$forum_page['post_options'] = array_merge(array('&nbsp;&nbsp;'), $forum_page['post_options']);
+		}
+		else
+		{
+		$forum_page['post_options'] = array_merge(array('&nbsp;&nbsp;<div class="fb-like" data-href="'.$forum_config['o_facebook_like'].'/viewtopic.php?pid='.$cur_post['id'].'#p'.$cur_post['id'].'" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-action="recommend"></div>'), $forum_page['post_options']);		
+		}
+	    ]]>
+		</hook>
+	       <hook id="hd_template_loaded">
+            <![CDATA[
+$abir_tpl = 
+'<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, "script", "facebook-jssdk"));</script>
+';
+	
+	$tpl_main = str_replace('<body>', '<body>'.$abir_tpl, $tpl_main);
+	
+
+            ]]>
+            
+        </hook>
+		<hook id="aop_setup_personal_fieldset_end">
+			<![CDATA[
+if (file_exists($ext_info['path'].'/lang/'.$forum_user['language'].'/'.$ext_info['id'].'.php'))
+	include $ext_info['path'].'/lang/'.$forum_user['language'].'/'.$ext_info['id'].'.php';
+else
+	include $ext_info['path'].'/lang/English/pun_fblike.php';
+
+$forum_page['group_count'] = $forum_page['item_count'] = 0;
+?>
+				<div class="content-head">
+					<h2 class="hn"><span><?php echo $lang_pun_fblike['Setup'] ?></span></h2>
+				</div>
+				<fieldset class="frm-group group<?php echo ++$forum_page['group_count'] ?>">
+					<div class="sf-set set<?php echo ++$forum_page['item_count'] ?>">
+						<div class="sf-box text">
+							<label for="fld<?php echo ++$forum_page['fld_count'] ?>">
+								<span><?php echo $lang_pun_fblike['Domain'] ?></span>
+								<small><?php echo $lang_pun_fblike['Domain help'] ?></small>
+							</label><br />
+							<span class="fld-input"><input type="text" id="fld<?php echo $forum_page['fld_count'] ?>" name="form[facebook_like]" size="50" maxlength="255" value="<?php echo forum_htmlencode($forum_config['o_facebook_like']) ?>" /></span>
+						</div>
+					</div>
+					<fieldset class="mf-set set<?php echo ++$forum_page['item_count'] ?>">
+						<legend><span><?php echo $lang_pun_fblike['Type'] ?></span></legend>
+						<div class="mf-box">
+							<div class="mf-item">
+								<span class="fld-input"><input type="radio" id="fld<?php echo ++$forum_page['fld_count'] ?>" name="form[facebook_like_type]" value="enable"<?php if ($forum_config['o_facebook_like_type'] == 'enable') echo ' checked="checked"' ?> /></span>
+								<label for="fld<?php echo $forum_page['fld_count'] ?>"><?php echo $lang_pun_fblike['Type enable'] ?></label>
+							</div>
+							<div class="mf-item">
+								<span class="fld-input"><input type="radio" id="fld<?php echo ++$forum_page['fld_count'] ?>" name="form[facebook_like_type]" value="disable"<?php if ($forum_config['o_facebook_like_type'] == 'disable') echo ' checked="checked"' ?> /></span>
+								<label for="fld<?php echo $forum_page['fld_count'] ?>"><?php echo $lang_pun_fblike['Type disable'] ?></label>
+							</div>
+						</div>
+					</fieldset>
+				</fieldset>
+<?php
+
+			]]>
+		</hook>
+		   </hooks>
+</extension>
