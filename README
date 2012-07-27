@@ -1,13 +1,9 @@
-CHANGELOG
-==Initial release==
+==Extension Release==
+Facebook Like/Recommend button for each post (Including topic & reply)
+Version : 1.0.0
+Description : This Extension generates a like button, each time user post a topic or reply.
+Author : Abir (Psychecroatan)
+Website : http://studyforums.org
 
-  <id>pun_fblike</id>
-  <title>Pun Facebook Like Button</title>
-	<version>1.0.0</version>
-	<description>This Extension generates a like button, each time user post a topic or reply.</description>
-	<author>Psychecroatan (Abir)</author>
-
-	<minversion>1.4RC1</minversion>
-	<maxtestedon>1.4</maxtestedon>
-    
-	<note type="install">If you find it worthy please give a feedback at psychecroatan@gmail.com</note>
+==ChangeLog==
+Initial Release
